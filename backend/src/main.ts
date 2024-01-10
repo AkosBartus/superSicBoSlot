@@ -8,6 +8,8 @@ app.use(express.json());
 const PORT = 8080;
 app.listen(PORT, () => console.log(`Listening on ${PORT}...`));
 
+/* ------------------------------------------------------------------------------- */
+
 type Symbol = {
   one?: string;
   two?: string;
@@ -57,10 +59,37 @@ function isWinningRow(row: Symbol[]): boolean {
   }
 }
 
-function spin(): { row: Symbol[]; isWin: boolean } {
+function spin(): { row: Symbol[], isWin: boolean, isBonus: number } {
   let row = generateSlotRow();
   let isWin = isWinningRow(row);
-  return { row, isWin };
+  let isBonus = freeSpins(row)
+  return { row, isWin, isBonus };
+}
+
+/* ------------------------------------------------------------------------------- */
+
+function isFreeSpins(row: Symbol[]): boolean {
+    return row.some((symbol) => symbol?.bonus === "FREE SPINS")
+}
+
+
+function freeSpins(row: Symbol[]): number {
+    const hasFreeSpins = isFreeSpins(row)
+    let freeSpinsCount: number = 6
+    if (hasFreeSpins) {
+        
+
+
+        for (let index = 0; index < row.length; index++) {
+            if (row[index]?.bonus === "FREE SPINS") {
+                freeSpinsCount += 3
+            }          
+        }
+    } else {
+        freeSpinsCount = 0
+    }
+
+    return freeSpinsCount
 }
 
 app.post("/api/spin", (req, res) => {

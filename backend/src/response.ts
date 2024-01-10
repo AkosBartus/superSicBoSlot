@@ -18,7 +18,7 @@ async function main() {
     await sendRequest();
   }
 
-  const outputPath = '../database/spins.json'; // A menteni kívánt JSON fájl elérési útvonala
+  const outputPath = '../database/spins.json';
   const jsonData = JSON.stringify(responses, null, 2);
 
   fs.writeFile(outputPath, jsonData, 'utf8', (err: unknown) => {
