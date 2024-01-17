@@ -30,18 +30,24 @@ const symbols: Symbol[] = [
   { bonus: "FREE SPINS" },
 ];
 
-function getRandomSymbol(): Symbol {
-    const randomValue = Math.random();
-    if (randomValue < 0.03) {
-      return { bonus: "FREE SPINS" };
-    } else {
-      const randomIndex = Math.floor(Math.random() * 6);
-      return symbols[randomIndex];
-    }
+let totalSpins: number = 0;
+
+function getRandomSymbol(useBonus: boolean = false): Symbol {
+  const randomValue = Math.random();
+  if (randomValue < 0.01) {
+    return { bonus: "FREE SPINS" };
+  } else {
+    const randomIndex = Math.floor(Math.random() * 6);
+    return symbols[randomIndex];
+  }
 }
 
-function generateSlotRow(): Symbol[] {
-  return [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
+function generateSlotRow(useBonus: boolean = false): Symbol[] {
+  return [
+    getRandomSymbol(useBonus),
+    getRandomSymbol(useBonus),
+    getRandomSymbol(useBonus),
+  ];
 }
 
 function isWinningRow(row: Symbol[]): boolean {
@@ -59,38 +65,41 @@ function isWinningRow(row: Symbol[]): boolean {
   }
 }
 
-function spin(): { row: Symbol[], isWin: boolean, isBonus: number } {
-  let row = generateSlotRow();
+function freeSpins(row: Symbol[]): number {
+  let freeSpinsCount: number = 6;
+
+  for (let index = 0; index < row.length; index++) {
+    if (row[index]?.bonus === "FREE SPINS") {
+      freeSpinsCount += 3;
+    }
+  }
+
+  return freeSpinsCount;
+}
+
+function spin(useBonus: boolean = false): {
+  row: Symbol[];
+  isWin: boolean;
+  isBonus: number;
+} {
+  let row = generateSlotRow(useBonus);
   let isWin = isWinningRow(row);
-  let isBonus = freeSpins(row)
+  let isBonus = 0;
+
+  if (useBonus) {
+    isBonus = freeSpins(row);
+
+    if (isBonus > 0) {
+      totalSpins += isBonus;
+    }
+  }
+
+  totalSpins++;
+
   return { row, isWin, isBonus };
 }
 
 /* ------------------------------------------------------------------------------- */
-
-function isFreeSpins(row: Symbol[]): boolean {
-    return row.some((symbol) => symbol?.bonus === "FREE SPINS")
-}
-
-
-function freeSpins(row: Symbol[]): number {
-    const hasFreeSpins = isFreeSpins(row)
-    let freeSpinsCount: number = 6
-    if (hasFreeSpins) {
-        
-
-
-        for (let index = 0; index < row.length; index++) {
-            if (row[index]?.bonus === "FREE SPINS") {
-                freeSpinsCount += 3
-            }          
-        }
-    } else {
-        freeSpinsCount = 0
-    }
-
-    return freeSpinsCount
-}
 
 app.post("/api/spin", (req, res) => {
   const { name, balance, coinValue } = req.body;
@@ -102,5 +111,4 @@ app.post("/api/spin", (req, res) => {
 
 app.get("/api/spin", (req, res) => {});
 
-
-export{spin}
+export { spin };

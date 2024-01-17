@@ -8,8 +8,14 @@ async function sendRequest() {
   try {
     const response = await axios.post('http://localhost:8080/api/spin', {});
     responses.push(response.data);
+
+    if (response.data.isBonus > 0) {
+      console.log(`Bónusz talált! (${responses.length}/${requestCount}), Bónusz pörgetések: ${response.data.isBonus}`);
+    } else {
+      console.log(`Request sikeresen elküldve (${responses.length}/${requestCount})`);
+    }
   } catch (error) {
-    console.error('Hiba:', error);
+    console.error('Hiba történt a kérés küldése közben:', error);
   }
 }
 
@@ -25,7 +31,7 @@ async function main() {
     if (err) {
       console.error('Hiba a fájl mentése során:', err);
     } else {
-      console.log('Válaszok elmentve:', outputPath);
+      console.log('Válaszok sikeresen elmentve:', outputPath);
     }
   });
 }
